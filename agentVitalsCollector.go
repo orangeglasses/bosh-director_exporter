@@ -9,7 +9,7 @@ import (
 )
 
 type metric struct {
-	desc  *prometheus.Desc
+	gauge prometheus.Gauge
 	value float64
 }
 
@@ -79,7 +79,7 @@ func (c *agentStateCollector) getVitalsMetrics() error {
 
 func (c *agentStateCollector) Describe(ch chan<- *prometheus.Desc) {
 	for _, v := range c.metrics {
-		ch <- v.desc
+		v.gauge.Describe(ch)
 	}
 
 }
@@ -92,11 +92,11 @@ func (c *agentStateCollector) Collect(ch chan<- prometheus.Metric) {
 		return
 	}
 	for _, v := range c.metrics {
-		ch <- prometheus.MustNewConstMetric(v.desc, prometheus.GaugeValue, v.value)
+		ch <- prometheus.MustNewConstMetric(v.gauge.Desc(), prometheus.GaugeValue, v.value)
 	}
 }
 
-func newAgentStateCollector(stateClient *agentStateClient, environment string) (*agentStateCollector, error) {
+func newAgentStateCollector(stateClient *agentStateClient, environment, namespace string) (*agentStateCollector, error) {
 	state, err := stateClient.getState()
 	if err != nil {
 		log.Errorf("Cannot get agent state: %v", err.Error())
@@ -113,19 +113,114 @@ func newAgentStateCollector(stateClient *agentStateClient, environment string) (
 		metrics: make(map[string]metric),
 	}
 
-	collector.metrics["CPUSys"] = metric{prometheus.NewDesc("cpu_sys", "CPU SYS Usage as reported by BOSH agent", nil, constLabels), 0}
-	collector.metrics["CPUUser"] = metric{prometheus.NewDesc("cpu_user", "CPU USER Usage as reported by BOSH agent", nil, constLabels), 0}
-	collector.metrics["CPUWait"] = metric{prometheus.NewDesc("cpu_wait", "CPU WAIT Usage as reported by BOSH agent", nil, constLabels), 0}
+	collector.metrics["CPUSys"] = metric{
+		prometheus.NewGauge(
+			prometheus.GaugeOpts{
+				Namespace:   namespace,
+				Subsystem:   "vitals",
+				Name:        "cpu_sys",
+				Help:        "CPU SYS Usage",
+				ConstLabels: constLabels,
+			},
+		), 0}
 
-	collector.metrics["DiskPersistent"] = metric{prometheus.NewDesc("disk_persistent_percentage", "Percentage Persistent Disk Usage as reported by BOSH agent", nil, constLabels), 0}
-	collector.metrics["DiskEphemeral"] = metric{prometheus.NewDesc("disk_ephemeral_percentage", "Percentage ephemeral Disk Usage as reported by BOSH agent", nil, constLabels), 0}
-	collector.metrics["DiskSystem"] = metric{prometheus.NewDesc("disk_system_percentage", "Percentage System Disk Usage as reported by BOSH agent", nil, constLabels), 0}
+	collector.metrics["CPUUser"] = metric{
+		prometheus.NewGauge(
+			prometheus.GaugeOpts{
+				Namespace:   namespace,
+				Subsystem:   "vitals",
+				Name:        "cpu_user",
+				Help:        "CPU USER Usage",
+				ConstLabels: constLabels,
+			},
+		), 0}
 
-	collector.metrics["MemPercent"] = metric{prometheus.NewDesc("mem_percentage", "Percentage RAM Usage as reported by BOSH agent", nil, constLabels), 0}
-	collector.metrics["MemKb"] = metric{prometheus.NewDesc("mem_kb", "KiloBytes RAM Usage as reported by BOSH agent", nil, constLabels), 0}
+	collector.metrics["CPUWait"] = metric{
+		prometheus.NewGauge(
+			prometheus.GaugeOpts{
+				Namespace:   namespace,
+				Subsystem:   "vitals",
+				Name:        "cpu_wait",
+				Help:        "CPU WAIT Usage",
+				ConstLabels: constLabels,
+			},
+		), 0}
 
-	collector.metrics["SwapPercent"] = metric{prometheus.NewDesc("swap_percentage", "Percentage Swap Usage as reported by BOSH agent", nil, constLabels), 0}
-	collector.metrics["SwapKb"] = metric{prometheus.NewDesc("swap_kb", "KiloBytes Swap Usage as reported by BOSH agent", nil, constLabels), 0}
+	collector.metrics["DiskPersistent"] = metric{
+		prometheus.NewGauge(
+			prometheus.GaugeOpts{
+				Namespace:   namespace,
+				Subsystem:   "vitals",
+				Name:        "disk_persistent_percentage",
+				Help:        "Percentage Persistent Disk Usage",
+				ConstLabels: constLabels,
+			},
+		), 0}
+
+	collector.metrics["DiskEphemeral"] = metric{
+		prometheus.NewGauge(
+			prometheus.GaugeOpts{
+				Namespace:   namespace,
+				Subsystem:   "vitals",
+				Name:        "disk_ephemeral_percentage",
+				Help:        "Percentage ephemeral Disk Usage",
+				ConstLabels: constLabels,
+			},
+		), 0}
+
+	collector.metrics["DiskSystem"] = metric{
+		prometheus.NewGauge(
+			prometheus.GaugeOpts{
+				Namespace:   namespace,
+				Subsystem:   "vitals",
+				Name:        "disk_system_percentage",
+				Help:        "Percentage System Disk Usage",
+				ConstLabels: constLabels,
+			},
+		), 0}
+
+	collector.metrics["MemPercent"] = metric{
+		prometheus.NewGauge(
+			prometheus.GaugeOpts{
+				Namespace:   namespace,
+				Subsystem:   "vitals",
+				Name:        "mem_percentage",
+				Help:        "Percentage RAM Usage",
+				ConstLabels: constLabels,
+			},
+		), 0}
+
+	collector.metrics["MemKb"] = metric{
+		prometheus.NewGauge(
+			prometheus.GaugeOpts{
+				Namespace:   namespace,
+				Subsystem:   "vitals",
+				Name:        "mem_kb",
+				Help:        "KiloBytes RAM Usage",
+				ConstLabels: constLabels,
+			},
+		), 0}
+
+	collector.metrics["SwapPercent"] = metric{
+		prometheus.NewGauge(
+			prometheus.GaugeOpts{
+				Namespace:   namespace,
+				Subsystem:   "vitals",
+				Name:        "swap_percentage",
+				Help:        "Percentage Swap Usage",
+				ConstLabels: constLabels,
+			},
+		), 0}
+	collector.metrics["SwapKb"] = metric{
+		prometheus.NewGauge(
+			prometheus.GaugeOpts{
+				Namespace:   namespace,
+				Subsystem:   "vitals",
+				Name:        "swap_kb",
+				Help:        "KiloBytes Swap Usage",
+				ConstLabels: constLabels,
+			},
+		), 0}
 
 	return collector, nil
 }

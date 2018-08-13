@@ -125,7 +125,7 @@ func main() {
 
 	/////
 	stateClient := newAgentStateClient(*agentURL, *agentUsername, *agentPassword, true)
-	stateCollector, err := newAgentStateCollector(&stateClient, *metricsEnvironment)
+	stateCollector, err := newAgentStateCollector(&stateClient, *metricsEnvironment, "boshdirector")
 	if err != nil {
 		log.Fatalf("Could not create collector. Exitting. Error: %v", err)
 	}
