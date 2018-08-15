@@ -2,8 +2,10 @@ package main
 
 import (
 	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strings"
 	"time"
@@ -22,10 +24,25 @@ type agentStateClient struct {
 	httpClient *http.Client
 }
 
-func newAgentStateClient(url, username, password string, skipTlsVerify bool) agentStateClient {
+func newAgentStateClient(url, username, password, certfile string) (agentStateClient, error) {
+	caCertPool := x509.NewCertPool()
+
+	insecure := true
+	if certfile != "" {
+		insecure = false
+
+		caCert, err := ioutil.ReadFile(certfile)
+		if err != nil {
+			return agentStateClient{}, fmt.Errorf("Unable to load cert file: %v", err)
+		}
+
+		caCertPool.AppendCertsFromPEM(caCert)
+	}
+
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{
-			InsecureSkipVerify: true,
+			InsecureSkipVerify: insecure,
+			RootCAs:            caCertPool,
 		},
 	}
 
@@ -37,7 +54,7 @@ func newAgentStateClient(url, username, password string, skipTlsVerify bool) age
 		username:   username,
 		password:   password,
 		httpClient: httpClient,
-	}
+	}, nil
 }
 
 func (a agentStateClient) getState() (agentState, error) {

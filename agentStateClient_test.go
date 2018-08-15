@@ -6,7 +6,7 @@ import (
 
 func TestGetState(t *testing.T) {
 	testServer := MockServer("fakeuser", "fakepassword", mockReply)
-	client := newAgentStateClient(testServer.URL, "fakeuser", "fakepassword", true)
+	client, _ := newAgentStateClient(testServer.URL, "fakeuser", "fakepassword", "")
 	state, err := client.getState()
 	if err != nil {
 		t.Errorf("getState() returned error where no error was expected: %v", err)
@@ -19,19 +19,19 @@ func TestGetState(t *testing.T) {
 	testServer.Close()
 
 	testServer = MockServer("fakeuser", "fakepassword", "{}")
-	client = newAgentStateClient(testServer.URL, "fakeuser", "fakepassword", true)
+	client, _ = newAgentStateClient(testServer.URL, "fakeuser", "fakepassword", "")
 	_, err = client.getState()
 	if err == nil {
 		t.Errorf("getState() on invalid state did not return error while an error was expected")
 	}
 
-	client = newAgentStateClient(testServer.URL, "fakeuser", "wrongpassword", true)
+	client, _ = newAgentStateClient(testServer.URL, "fakeuser", "wrongpassword", "")
 	_, err = client.getState()
 	if err == nil || err.Error() != "getState returned statuscode: 401" {
 		t.Errorf("getState() with wrong creds did not return error while error was expected")
 	}
 
-	client = newAgentStateClient("wrongurl", "fakeuser", "fakepassword", true)
+	client, _ = newAgentStateClient("wrongurl", "fakeuser", "fakepassword", "")
 	_, err = client.getState()
 	if err == nil {
 		t.Errorf("getState() with invalid url did not return error while error was expected")
@@ -43,7 +43,7 @@ func TestGetStateParseFail(t *testing.T) {
 	testServer := MockServer("fakeuser", "fakepassword", "{")
 	defer testServer.Close()
 
-	client := newAgentStateClient(testServer.URL, "fakeuser", "fakepassword", true)
+	client, _ := newAgentStateClient(testServer.URL, "fakeuser", "fakepassword", "")
 	_, err := client.getState()
 
 	if err == nil {

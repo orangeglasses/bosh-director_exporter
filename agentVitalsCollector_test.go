@@ -8,7 +8,7 @@ import (
 
 func TestCollector(t *testing.T) {
 	testServer := MockServer("fakeusername", "fakepassword", mockReply)
-	stateClient := newAgentStateClient(testServer.URL, "fakeusername", "fakepassword", true)
+	stateClient, _ := newAgentStateClient(testServer.URL, "fakeusername", "fakepassword", "")
 	stateCollector, err := newAgentStateCollector(&stateClient, *metricsEnvironment, "bosh-director")
 	if err != nil {
 		t.Errorf("newAgentStateCollector returned error where no error was expected: %v", err)
