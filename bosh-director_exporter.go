@@ -14,15 +14,15 @@ import (
 
 var (
 	agentURL = kingpin.Flag(
-		"bosh-director.agenturl", "BOSH URL ($BOSH-DIRECTOR_EXPORTER_AGENT_URL)",
+		"boshdirector.agenturl", "BOSH URL ($BOSH-DIRECTOR_EXPORTER_AGENT_URL)",
 	).Envar("BOSHDIRECTOR_EXPORTER_AGENT_URL").Required().String()
 
 	agentUsername = kingpin.Flag(
-		"bosh-director.agentusername", "BOSH Username ($BOSH-DIRECTOR_EXPORTER_AGENT_USERNAME)",
+		"boshdirector.agentusername", "BOSH Username ($BOSH-DIRECTOR_EXPORTER_AGENT_USERNAME)",
 	).Envar("BOSHDIRECTOR_EXPORTER_AGENT_USERNAME").Required().String()
 
 	agentPassword = kingpin.Flag(
-		"bosh-director.agentpassword", "BOSH Password ($BOSH-DIRECTOR_EXPORTER_AGENT_PASSWORD)",
+		"boshdirector.agentpassword", "BOSH Password ($BOSH-DIRECTOR_EXPORTER_AGENT_PASSWORD)",
 	).Envar("BOSHDIRECTOR_EXPORTER_AGENT_PASSWORD").Required().String()
 
 	metricsNamespace = kingpin.Flag(
