@@ -39,7 +39,7 @@ var (
 
 	listenAddress = kingpin.Flag(
 		"web.listen-address", "Address to listen on for web interface and telemetry ($BOSHDIRECTOR_EXPORTER_WEB_LISTEN_ADDRESS)",
-	).Envar("BOSHDIRECTOR_EXPORTER_WEB_LISTEN_ADDRESS").Default(":9190").String()
+	).Envar("BOSHDIRECTOR_EXPORTER_WEB_LISTEN_ADDRESS").Default(":9191").String()
 
 	metricsPath = kingpin.Flag(
 		"web.telemetry-path", "Path under which to expose Prometheus metrics ($BOSHDIRECTOR_EXPORTER_WEB_TELEMETRY_PATH)",
